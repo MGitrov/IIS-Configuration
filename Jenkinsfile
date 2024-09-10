@@ -29,10 +29,15 @@ pipeline {
                                 [System.Environment]::SetEnvironmentVariable($envName, $envValue, "Process")
                             }
                         }
+
+                        Write-Host ".env file successfully loaded!"
                     } else {
                         Write-Host "No .env file found."
                     }
                     '''
+
+                    echo "Repository URL: ${env.REPOSITORY_URL}"
+                    echo "Main Branch: ${env.MAIN_BRANCH}"
                 }
             }
         }
