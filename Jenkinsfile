@@ -18,7 +18,7 @@ pipeline {
                     echo "Loading environment variables from .env file..."
 
                     // Use PowerShell to read the .env file and capture key-value pairs
-                    def envVars = powershell(returnStdout: true, script: '''
+                    /*def envVars = powershell(returnStdout: true, script: '''
                     $envFilePath = ".env"
                     $output = @()
                     if (Test-Path $envFilePath) {
@@ -43,7 +43,16 @@ pipeline {
                     envVars.split('\n').each { line ->
                         def (key, value) = line.split('=')
                         env[key] = value.trim()
+                    }*/
+
+                    powershell '''
+                    $envFilePath = "$env:WORKSPACE\\.env"
+                    Get-Content $envFilePath | ForEach-Object {
+                        if ($_ -match "^\s*([^#][^=]+)=(.*)$") {
+                            [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+                        }
                     }
+                    '''
 
                     // Print the loaded variables for debugging
                     echo "Repository URL: ${env.REPOSITORY_URL}"
