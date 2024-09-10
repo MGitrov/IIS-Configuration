@@ -1,3 +1,0 @@
-[submodule "IIS-Configuration"]
-	path = IIS-Configuration
-	url = git@github.com:MGitrov/IIS-Configuration.git
