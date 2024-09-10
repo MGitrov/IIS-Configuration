@@ -41,8 +41,8 @@ pipeline {
             steps {
                 script {
                     echo "Building main branch..."
-                    checkout([$class: "GitSCM", branches: [[name: "*/${MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${REPOSITORY_URL}"]]
+                    checkout([$class: "GitSCM", branches: [[name: "*/${env.MAIN_BRANCH}"]],
+                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
                     ])
                 }
 
