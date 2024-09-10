@@ -21,16 +21,18 @@ pipeline {
                     $envFilePath = ".env"
 
                     if (Test-Path $envFilePath) {
+                        # Read .env file, split by `=`, and set each as an environment variable
                         Get-Content $envFilePath | ForEach-Object {
-                            $parts = $_ -split "="
-                            if ($parts.Count -eq 2) {
-                                $envName = $parts[0].Trim()
-                                $envValue = $parts[1].Trim()
-                                [System.Environment]::SetEnvironmentVariable($envName, $envValue, "Process")
+                            if ($_ -match "=") {
+                                $key, $value = $_ -split "="
+                                $key = $key.Trim()
+                                $value = $value.Trim()
+                                if (![string]::IsNullOrEmpty($key)) {
+                                    Write-Host "Setting environment variable: $key=$value"
+                                    [System.Environment]::SetEnvironmentVariable($key, $value, "Process")
+                                }
                             }
                         }
-
-                        Write-Host ".env file successfully loaded!"
                     } else {
                         Write-Host "No .env file found."
                     }
@@ -47,7 +49,7 @@ pipeline {
                 script {
                     echo "Building main branch..."
                     checkout([$class: "GitSCM", branches: [[name: "*/${env.MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
+                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]], credentialsId: "4c78f311-bdb2-4a7d-b3ac-4fc499607db6"
                     ])
                 }
 
