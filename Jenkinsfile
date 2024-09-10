@@ -8,7 +8,6 @@ pipeline {
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
         WEB_APP_POOL = "DefaultAppPool"
-        //Let's see if it updates in the parent project
     }
 
     stages {
