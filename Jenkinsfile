@@ -17,27 +17,35 @@ pipeline {
                 script {
                     echo "Loading environment variables from .env file..."
 
-                    powershell '''
+                    // Use PowerShell to read the .env file and capture key-value pairs
+                    def envVars = powershell(returnStdout: true, script: '''
                     $envFilePath = ".env"
-
+                    $output = @()
                     if (Test-Path $envFilePath) {
-                        # Read .env file, split by `=`, and set each as an environment variable
                         Get-Content $envFilePath | ForEach-Object {
                             if ($_ -match "=") {
                                 $key, $value = $_ -split "="
                                 $key = $key.Trim()
                                 $value = $value.Trim()
                                 if (![string]::IsNullOrEmpty($key)) {
+                                    $output += "$key=$value"
                                     Write-Host "Setting environment variable: $key=$value"
-                                    [System.Environment]::SetEnvironmentVariable($key, $value, "Process")
                                 }
                             }
                         }
                     } else {
-                        Write-Host "No .env file found."
+                        Write-Host ".env file not found."
                     }
-                    '''
+                    return $output -join "`n"
+                    ''').trim()
 
+                    // Parse and set the environment variables in the Jenkins context
+                    envVars.split('\n').each { line ->
+                        def (key, value) = line.split('=')
+                        env[key] = value.trim()
+                    }
+
+                    // Print the loaded variables for debugging
                     echo "Repository URL: ${env.REPOSITORY_URL}"
                     echo "Main Branch: ${env.MAIN_BRANCH}"
                 }
@@ -49,7 +57,7 @@ pipeline {
                 script {
                     echo "Building main branch..."
                     checkout([$class: "GitSCM", branches: [[name: "*/${env.MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]], credentialsId: "4c78f311-bdb2-4a7d-b3ac-4fc499607db6"
+                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
                     ])
                 }
 
