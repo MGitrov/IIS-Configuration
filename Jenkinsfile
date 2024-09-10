@@ -1,16 +1,42 @@
 pipeline {
     agent {label "Local-Agent"}
 
-    environment {
+    /*environment {
+        // Default values in case ".env" file fails to load
         REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
         MAIN_BRANCH = "main"
         SECONDARY_BRANCH = "new-page"
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
         WEB_APP_POOL = "DefaultAppPool"
-    }
+    }*/
 
     stages {
+        stage('Load .env File') {
+            steps {
+                script {
+                    echo "Loading environment variables from .env file..."
+
+                    powershell '''
+                    $envFilePath = ".env"
+
+                    if (Test-Path $envFilePath) {
+                        Get-Content $envFilePath | ForEach-Object {
+                            $parts = $_ -split "="
+                            if ($parts.Count -eq 2) {
+                                $envName = $parts[0].Trim()
+                                $envValue = $parts[1].Trim()
+                                [System.Environment]::SetEnvironmentVariable($envName, $envValue, "Process")
+                            }
+                        }
+                    } else {
+                        Write-Host "No .env file found."
+                    }
+                    '''
+                }
+            }
+        }
+
         stage("Checkout 'main' branch") {
             steps {
                 script {
