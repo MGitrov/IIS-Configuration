@@ -34,17 +34,17 @@ pipeline {
                     }
                     ''').trim()
 
-                    // Split the envVars string into individual variables
+                    // Prepare the environment variables for 'withEnv'
+                    def envList = []
                     envVars.split('\n').each { line ->
                         if (line) {
-                            def parts = line.split('=')
-                            if (parts.size() == 2) {
-                                def key = parts[0].trim()
-                                def value = parts[1].trim()
-                                // Set the environment variable for the pipeline
-                                env[key] = value
-                            }
+                            envList.add(line.trim()) // Add the key=value pair to the environment list
                         }
+                    }
+
+                    // Apply the environment variables using 'withEnv'
+                    withEnv(envList) {
+                        echo "Loaded environment variables: ${env.REPOSITORY_URL}, ${env.MAIN_BRANCH}"
                     }
                 }
             }
