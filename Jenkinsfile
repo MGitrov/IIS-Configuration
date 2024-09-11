@@ -34,12 +34,14 @@ pipeline {
         stage("Verify environment variables") {
             steps {
                 script {
-                    echo "Repository URL: ${env.REPOSITORY_URL}"
-                    echo "Main Branch: ${env.MAIN_BRANCH}"
-                    echo "Secondary Branch: ${env.SECONDARY_BRANCH}"
-                    echo "Package Name: ${env.PACKAGE_NAME}"
-                    echo "Deploy Path: ${env.DEPLOY_PATH}"
-                    echo "Web App Pool: ${env.WEB_APP_POOL}"
+                    powershell '''
+                    Write-Host "Repository URL: ${env:REPOSITORY_URL}"
+                    Write-Host "Main Branch: ${env:MAIN_BRANCH}"
+                    Write-Host "Secondary Branch: ${env:SECONDARY_BRANCH}"
+                    Write-Host "Package Name: ${env:PACKAGE_NAME}"
+                    Write-Host "Deploy Path: ${env:DEPLOY_PATH}"
+                    Write-Host "Web App Pool: ${env:WEB_APP_POOL}"
+                    '''
                 }
             }
         }
@@ -83,19 +85,33 @@ pipeline {
                     script {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
-                        powershell '''
-                        try {
-                            Write-Host "Compressing files from: ${env:WORKSPACE}"
-                            Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                            $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
-                            #Write-Host "Items to compress: $itemsToCompress"
-                            Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
+                        /*powershell '''
+                        Write-Host "Compressing files from: ${env:WORKSPACE}"
+                        Write-Host "Saving to: ${env:PACKAGE_NAME}"
+                        #$itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
+                        Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
 
-                            Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
-                        } catch {
-                            Write-Error "Failed to create archive: $_"
-                        }
-                        '''
+                        Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        '''*/
+
+                    // Escape and clean environment variables
+                    def workspaceDir = "${env.WORKSPACE}".trim().replaceAll('[<>:"/\\|?*]', '_')
+                    def zipFileName = "${env.PACKAGE_NAME}".trim().replaceAll('[<>:"/\\|?*]', '_')
+
+                    echo "Workspace Directory: ${workspaceDir}"
+                    echo "Package Name: ${zipFileName}"
+
+                    // Pass cleaned variables explicitly to PowerShell
+                    powershell """
+                    \$sourcePath = '${workspaceDir}'
+                    \$destinationPath = '${zipFileName}'
+
+                    Write-Host 'Compressing files from: \$sourcePath'
+                    Write-Host 'Saving to: \$destinationPath'
+
+                    # Ensure paths are correctly formatted and compressed
+                    Compress-Archive -Path \$sourcePath -DestinationPath \$destinationPath -Force -Verbose
+                    """
                     }
             }
         }
