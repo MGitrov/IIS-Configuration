@@ -9,7 +9,7 @@ pipeline {
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
         WEB_APP_POOL = "DefaultAppPool"*/
-        readProperties file: ".env"
+        def props = readProperties file: ".env"
     }
 
     stages {
