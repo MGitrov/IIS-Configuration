@@ -35,11 +35,12 @@ pipeline {
         stage("Verify environment variables") {
             steps {
                 script {
-                    powershell '''
-                        Get-ChildItem Env: | ForEach-Object {
-                            Write-Host "$($_.Name): $($_.Value)"
-                        }
-                    '''
+                    echo "Repository URL: ${env.REPOSITORY_URL}"
+                    echo "Main Branch: ${env.MAIN_BRANCH}"
+                    echo "Secondary Branch: ${env.SECONDARY_BRANCH}"
+                    echo "Package Name: ${env.PACKAGE_NAME}"
+                    echo "Deploy Path: ${env.DEPLOY_PATH}"
+                    echo "Web App Pool: ${env.WEB_APP_POOL}"
                 }
             }
         }
@@ -84,7 +85,12 @@ pipeline {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        Compress-Archive -Path "$env:WORKSPACE\\*" -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        Get-ChildItem -Path "${env:WORKSPACE}" -Recurse
+
+                        Write-Host "Compressing files from: ${env:WORKSPACE}\\*"
+                        Write-Host "Saving to: ${env:PACKAGE_NAME}"
+
+                        Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
