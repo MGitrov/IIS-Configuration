@@ -48,6 +48,7 @@ pipeline {
                             def (key, value) = envVar.split('=')
                             env[key] = value // Make the environment variable globally available
                         }
+                    }
                 }
             }
         }
