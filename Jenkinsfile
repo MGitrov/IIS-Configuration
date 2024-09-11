@@ -84,7 +84,7 @@ pipeline {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        Compress-Archive -Path "$env:WORKSPACE\\*" -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
