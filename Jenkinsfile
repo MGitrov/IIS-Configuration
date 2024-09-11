@@ -15,7 +15,7 @@ pipeline {
         stage('Load .env File') {
             steps {
                 script {
-                    // Read the .env file content using PowerShell
+                    // Read the .env file content using PowerShell and return the key-value pairs
                     def envVars = powershell(returnStdout: true, script: '''
                     $envFilePath = ".env"
 
@@ -25,14 +25,14 @@ pipeline {
                             if ($parts.Count -eq 2) {
                                 $envName = $parts[0].Trim()
                                 $envValue = $parts[1].Trim()
-                                "$envName=$envValue"
+                                Write-Output "$envName=$envValue"
                             }
-                        } -join "`n"
+                        }
                     } else {
                         Write-Host ".env file not found."
                         return ""
                     }
-                    ''')
+                    ''').trim()
 
                     // Split the envVars string into individual variables
                     envVars.split('\n').each { line ->
