@@ -1,33 +1,36 @@
 pipeline {
     agent {label "Local-Agent"}
 
-    environment {
+    /*environment {
         // Default values in case ".env" file fails to load
-        /*REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
+        REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
         MAIN_BRANCH = "main"
         SECONDARY_BRANCH = "new-page"
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
-        WEB_APP_POOL = "DefaultAppPool"*/
-        def props = readProperties file: ".env"
-    }
+        WEB_APP_POOL = "DefaultAppPool"
+    }*/
 
     stages {
-        /*stage('Load .env File') {
+        stage('Load Environment Variables') {
             steps {
                 script {
-                    // Use PowerShell to read .env file and set environment variables
-                    powershell '''
-                        Get-Content .env | ForEach-Object {
-                            $name, $value = $_.split('=')
-                            if ([string]::IsNullOrWhiteSpace($name) -eq $false) {
-                                Set-Item -Path env:$name -Value $value
-                            }
+                    // Read the .env file using PowerShell
+                    def envContents = powershell(returnStdout: true, script: 'Get-Content .env -Raw')
+                    
+                    // Parse the contents and set environment variables
+                    envContents.split('\r?\n').each { line ->
+                        def keyValue = line.split('=', 2)
+                        if (keyValue.size() == 2) {
+                            def key = keyValue[0].trim()
+                            def value = keyValue[1].trim()
+                            env[key] = value
+                            echo "Setting ${key} to ${value}"
                         }
-                    '''
+                    }
                 }
             }
-        }*/
+        }
 
         stage("Verify environment variables") {
             steps {
