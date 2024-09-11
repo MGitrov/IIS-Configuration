@@ -12,51 +12,38 @@ pipeline {
     }*/
 
     stages {
-        stage('Load .env File') {
+        stage("Load '.env' file") {
             steps {
                 script {
-                    echo "Loading environment variables from .env file..."
-
-                    // Use PowerShell to read the .env file and capture key-value pairs
-                    /*def envVars = powershell(returnStdout: true, script: '''
+                    powershell '''
                     $envFilePath = ".env"
-                    $output = @()
+
                     if (Test-Path $envFilePath) {
                         Get-Content $envFilePath | ForEach-Object {
-                            if ($_ -match "=") {
-                                $key, $value = $_ -split "="
-                                $key = $key.Trim()
-                                $value = $value.Trim()
-                                if (![string]::IsNullOrEmpty($key)) {
-                                    $output += "$key=$value"
-                                    Write-Host "Setting environment variable: $key=$value"
-                                }
+                            $parts = $_ -split "="
+                            if ($parts.Count -eq 2) {
+                                $envName = $parts[0].Trim()
+                                $envValue = $parts[1].Trim()
+                                [System.Environment]::SetEnvironmentVariable($envName, $envValue, "Process")
                             }
                         }
                     } else {
                         Write-Host ".env file not found."
                     }
-                    return $output -join "`n"
-                    ''').trim()
-
-                    // Parse and set the environment variables in the Jenkins context
-                    envVars.split('\n').each { line ->
-                        def (key, value) = line.split('=')
-                        env[key] = value.trim()
-                    }*/
-
-                    powershell '''
-                    $envFilePath = "$env:WORKSPACE\\.env"
-                    Get-Content $envFilePath | ForEach-Object {
-                        if ($_ -match "^\\s*([^#][^=]+)=(.*)$") {
-                            [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
-                        }
-                    }
                     '''
+                }
+            }
+        }
 
-                    // Print the loaded variables for debugging
+        stage("Verify environment variables") {
+            steps {
+                script {
                     echo "Repository URL: ${env.REPOSITORY_URL}"
                     echo "Main Branch: ${env.MAIN_BRANCH}"
+                    echo "Secondary Branch: ${env.SECONDARY_BRANCH}"
+                    echo "Package Name: ${env.PACKAGE_NAME}"
+                    echo "Deploy Path: ${env.DEPLOY_PATH}"
+                    echo "Web App Pool: ${env.WEB_APP_POOL}"
                 }
             }
         }
