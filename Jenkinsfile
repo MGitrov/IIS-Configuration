@@ -84,13 +84,17 @@ pipeline {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        Write-Host "Compressing files from: ${env:WORKSPACE}"
-                        Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                        $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
-                        #Write-Host "Items to compress: $itemsToCompress"
-                        Get-ChildItem -Path "${env:WORKSPACE}" -Recurse | ForEach-Object { Write-Host $_.FullName }
+                        try {
+                            Write-Host "Compressing files from: ${env:WORKSPACE}"
+                            Write-Host "Saving to: ${env:PACKAGE_NAME}"
+                            $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
+                            #Write-Host "Items to compress: $itemsToCompress"
+                            Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
 
-                        Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                            Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        } catch {
+                            Write-Error "Failed to create archive: " + \$_
+                        }
                         '''
                     }
             }
