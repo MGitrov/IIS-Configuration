@@ -54,7 +54,8 @@ pipeline {
                                     echo "Setting ${key} to ${value}"
                                 }
                             }
-                        }
+                        }    
+                    }
                 }
             }
         }
@@ -182,5 +183,4 @@ pipeline {
             cleanWs()
         }
     }
-}
 }
