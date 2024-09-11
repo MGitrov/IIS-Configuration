@@ -81,6 +81,8 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
+                        echo "Creating deployment package: ${env.PACKAGE_NAME}"
+                        
                         powershell '''
                         Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
