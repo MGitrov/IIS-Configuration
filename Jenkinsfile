@@ -1,18 +1,19 @@
 pipeline {
     agent {label "Local-Agent"}
 
-    /*environment {
+    environment {
         // Default values in case ".env" file fails to load
-        REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
+        /*REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
         MAIN_BRANCH = "main"
         SECONDARY_BRANCH = "new-page"
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
-        WEB_APP_POOL = "DefaultAppPool"
-    }*/
+        WEB_APP_POOL = "DefaultAppPool"*/
+        readProperties file: ".env"
+    }
 
     stages {
-        stage('Load .env File') {
+        /*stage('Load .env File') {
             steps {
                 script {
                     // Use PowerShell to read .env file and set environment variables
@@ -26,7 +27,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        }*/
 
         stage("Verify environment variables") {
             steps {
