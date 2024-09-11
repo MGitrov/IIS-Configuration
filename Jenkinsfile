@@ -86,7 +86,7 @@ pipeline {
                         powershell '''
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
                         Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                        itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
+                        $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
                         #Write-Host "Items to compress: $itemsToCompress"
                         Get-ChildItem -Path "${env:WORKSPACE}" -Recurse | ForEach-Object { Write-Host $_.FullName }
 
