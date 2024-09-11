@@ -112,15 +112,6 @@ pipeline {
                         # Load the .NET ZipFile class
                         Add-Type -AssemblyName "System.IO.Compression.FileSystem"
 
-                        # Verify that paths are valid
-                        if (!(Test-Path $env:WORKSPACE)) {
-                            Write-Error "Source path does not exist: $env:WORKSPACE"
-                        }
-
-                        if ([System.IO.Path]::HasIllegalCharacters($env:PACKAGE_NAME)) {
-                            Write-Error "Destination path contains illegal characters: $env:PACKAGE_NAME"
-                        }
-
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
                         Write-Host "Saving to: ${env:PACKAGE_NAME}"
                         # $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
