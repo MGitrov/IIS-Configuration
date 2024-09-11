@@ -11,7 +11,7 @@ pipeline {
     }*/
 
     stages {
-        /*stage('Load Environment Variables') {
+        stage('Load Environment Variables') {
             steps {
                 script {
                     // Read the .env file using PowerShell
@@ -29,9 +29,9 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
 
-        stage('Load Environment Variables from .env') {
+        /*stage('Load Environment Variables from .env') {
             steps {
                 script {
                     // Use the Config File Provider to load the .env file
@@ -52,7 +52,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
         stage("Verify environment variables") {
             steps {
@@ -158,6 +158,8 @@ pipeline {
                         "-verb:sync",
                         "-source:package='$env:WORKSPACE\\$env:PACKAGE_NAME'",
                         "-dest:contentPath='$env:DEPLOY_PATH',computerName='localhost'",
+                        "-skip:Directory=Configuration",
+                        "-skip:File=.gitmodules",
                         "-enableRule:DoNotDeleteRule"
                     ) -Wait -NoNewWindow
                     '''
