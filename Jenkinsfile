@@ -24,7 +24,7 @@ pipeline {
                         if (keyValue.size() == 2) {
                             def key = keyValue[0].trim()
                             def value = keyValue[1].trim()
-                            env[key] = value
+                            env."${key}" = value
                             echo "Setting ${key} to ${value}"
                         }
                     }
@@ -35,12 +35,11 @@ pipeline {
         stage("Verify environment variables") {
             steps {
                 script {
-                    echo "Repository URL: ${env.REPOSITORY_URL}"
-                    echo "Main Branch: ${env.MAIN_BRANCH}"
-                    echo "Secondary Branch: ${env.SECONDARY_BRANCH}"
-                    echo "Package Name: ${env.PACKAGE_NAME}"
-                    echo "Deploy Path: ${env.DEPLOY_PATH}"
-                    echo "Web App Pool: ${env.WEB_APP_POOL}"
+                    powershell '''
+                        Get-ChildItem Env: | ForEach-Object {
+                            Write-Host "$($_.Name): $($_.Value)"
+                        }
+                    '''
                 }
             }
         }
