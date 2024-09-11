@@ -103,14 +103,14 @@ pipeline {
 
                     // Pass cleaned variables explicitly to PowerShell
                     powershell """
-                    \$sourcePath = '${workspaceDir}'
-                    \$destinationPath = '${zipFileName}'
+                    $sourcePath = "${workspaceDir}"
+                    $destinationPath = "${zipFileName}"
 
-                    Write-Host 'Compressing files from: \$sourcePath'
-                    Write-Host 'Saving to: \$destinationPath'
+                    Write-Host "Compressing files from: $sourcePath"
+                    Write-Host "Saving to: $destinationPath"
 
                     # Ensure paths are correctly formatted and compressed
-                    Compress-Archive -Path \$sourcePath -DestinationPath \$destinationPath -Force -Verbose
+                    Compress-Archive -Path $sourcePath -DestinationPath $destinationPath -Force -Verbose
                     """
                     }
             }
