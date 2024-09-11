@@ -12,10 +12,11 @@ pipeline {
     }*/
 
     stages {
-        stage("Load '.env' file") {
+        stage('Load .env File') {
             steps {
                 script {
-                    powershell '''
+                    // Read the .env file content using PowerShell
+                    def envVars = powershell(returnStdout: true, script: '''
                     $envFilePath = ".env"
 
                     if (Test-Path $envFilePath) {
@@ -24,13 +25,27 @@ pipeline {
                             if ($parts.Count -eq 2) {
                                 $envName = $parts[0].Trim()
                                 $envValue = $parts[1].Trim()
-                                [System.Environment]::SetEnvironmentVariable($envName, $envValue, "Process")
+                                "$envName=$envValue"
                             }
-                        }
+                        } -join "`n"
                     } else {
                         Write-Host ".env file not found."
+                        return ""
                     }
-                    '''
+                    ''')
+
+                    // Split the envVars string into individual variables
+                    envVars.split('\n').each { line ->
+                        if (line) {
+                            def parts = line.split('=')
+                            if (parts.size() == 2) {
+                                def key = parts[0].trim()
+                                def value = parts[1].trim()
+                                // Set the environment variable for the pipeline
+                                env[key] = value
+                            }
+                        }
+                    }
                 }
             }
         }
