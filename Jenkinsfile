@@ -1,25 +1,16 @@
 pipeline {
     agent {label "Local-Agent"}
 
-    /*environment {
-        REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
-        MAIN_BRANCH = "main"
-        SECONDARY_BRANCH = "new-page"
-        PACKAGE_NAME = "WebApp.zip"
-        DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
-        WEB_APP_POOL = "DefaultAppPool"
-    }*/
-
     stages {
-        stage('Load Environment Variables') {
+        stage("Load environmet variables") {
             steps {
                 script {
-                    // Read the .env file using PowerShell
-                    def envContents = powershell(returnStdout: true, script: 'Get-Content .env -Raw')
+                    // Reads the ".env" file.
+                    def envVariables = powershell(returnStdout: true, script: "Get-Content .env -Raw")
                     
-                    // Parse the contents and set environment variables
-                    envContents.split('\r?\n').each { line ->
-                        def keyValue = line.split('=', 2)
+                    // Parses the contents of the ".env" file, and sets the environment variables in the pipeline.
+                    envVariables.split("\r?\n").each { line ->
+                        def keyValue = line.split("=", 2)
                         if (keyValue.size() == 2) {
                             def key = keyValue[0].trim()
                             def value = keyValue[1].trim()
@@ -30,29 +21,6 @@ pipeline {
                 }
             }
         }
-
-        /*stage('Load Environment Variables from .env') {
-            steps {
-                script {
-                    // Use the Config File Provider to load the .env file
-                    configFileProvider([configFile(fileId: 'IIS-Env-File_1', variable: 'ENV_FILE')]) {
-                        // Source the .env file and load environment variables
-                        def envContents = readFile("${ENV_FILE}")
-                        envContents.split('\n').each { line ->
-                            if (line.trim() && !line.trim().startsWith('#')) {
-                                def keyValue = line.split('=', 2)
-                                if (keyValue.size() == 2) {
-                                    def key = keyValue[0].trim()
-                                    def value = keyValue[1].trim()
-                                    env."${key}" = value
-                                    echo "Setting ${key} to ${value}"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
 
         stage("Verify environment variables") {
             steps {
@@ -111,9 +79,6 @@ pipeline {
                         powershell '''
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
                         Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                        # Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
-
-                        # Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
 
                         # Exclude the 'Configuration' directory and '.gitmodules' file during compression
                         $itemsToCompress = Get-ChildItem -Path $env:WORKSPACE -Recurse | Where-Object {
@@ -164,8 +129,6 @@ pipeline {
                         "-verb:sync",
                         "-source:package='$env:WORKSPACE\\$env:PACKAGE_NAME'",
                         "-dest:contentPath='$env:DEPLOY_PATH',computerName='localhost'",
-                        "-skip:Directory=Configuration",
-                        "-skip:File=.gitmodules",
                         "-enableRule:DoNotDeleteRule"
                     ) -Wait -NoNewWindow
                     '''
