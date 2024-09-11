@@ -85,12 +85,12 @@ pipeline {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        Get-ChildItem -Path "${env:WORKSPACE}" -Recurse
-
                         Write-Host "Compressing files from: ${env:WORKSPACE}\\*"
                         Write-Host "Saving to: ${env:PACKAGE_NAME}"
+                        $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
+                        Write-Host "Items to compress: $itemsToCompress"
 
-                        Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        Compress-Archive -Path $itemsToCompress -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
