@@ -1,18 +1,17 @@
 pipeline {
     agent {label "Local-Agent"}
 
-    /*environment {
-        // Default values in case ".env" file fails to load
+    environment {
         REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
         MAIN_BRANCH = "main"
         SECONDARY_BRANCH = "new-page"
         PACKAGE_NAME = "WebApp.zip"
         DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
         WEB_APP_POOL = "DefaultAppPool"
-    }*/
+    }
 
     stages {
-        stage('Load Environment Variables') {
+        /*stage('Load Environment Variables') {
             steps {
                 script {
                     // Read the .env file using PowerShell
@@ -30,9 +29,9 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
-        stage("Verify environment variables") {
+        /*stage("Verify environment variables") {
             steps {
                 script {
                     echo "Repository URL: ${env.REPOSITORY_URL}"
@@ -43,7 +42,7 @@ pipeline {
                     echo "Web App Pool: ${env.WEB_APP_POOL}"
                 }
             }
-        }
+        }*/
 
         stage("Checkout 'main' branch") {
             steps {
@@ -82,15 +81,15 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
-                        echo "Creating deployment package: ${env.PACKAGE_NAME}"
+                        //echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        Write-Host "Compressing files from: ${env:WORKSPACE}\\*"
-                        Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                        $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
-                        Write-Host "Items to compress: $itemsToCompress"
+                        #Write-Host "Compressing files from: ${env:WORKSPACE}\\*"
+                        #Write-Host "Saving to: ${env:PACKAGE_NAME}"
+                        #$itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
+                        #Write-Host "Items to compress: $itemsToCompress"
 
-                        Compress-Archive -Path $itemsToCompress -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
