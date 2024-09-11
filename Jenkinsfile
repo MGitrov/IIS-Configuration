@@ -93,7 +93,7 @@ pipeline {
 
                             Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         } catch {
-                            Write-Error "Failed to create archive: " + \$_
+                            Write-Error "Failed to create archive: $_"
                         }
                         '''
                     }
