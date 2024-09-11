@@ -11,11 +11,11 @@ pipeline {
     }*/
 
     stages {
-        stage('Load Environment Variables') {
+        /*stage('Load Environment Variables') {
             steps {
                 script {
                     // Read the .env file using PowerShell
-                    /*def envContents = powershell(returnStdout: true, script: 'Get-Content .env -Raw')
+                    def envContents = powershell(returnStdout: true, script: 'Get-Content .env -Raw')
                     
                     // Parse the contents and set environment variables
                     envContents.split('\r?\n').each { line ->
@@ -26,35 +26,29 @@ pipeline {
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
                         }
-                    }*/
-
-                                        // Read the .env file using PowerShell
-                    def envContents = powershell(returnStdout: true, script: '''
-                    $envFilePath = ".env"
-                    if (Test-Path $envFilePath) {
-                        Get-Content $envFilePath -Raw
-                    } else {
-                        Write-Error "No .env file found."
                     }
-                    ''')
+                }
+            }
+        }*/
 
-                    // Parse the contents and set environment variables
-                    envContents.split('\r?\n').each { line ->
-                        // Skip empty lines and comments (lines starting with '#')
-                        if (!line.trim().startsWith("#") && line.contains("=")) {
-                            def keyValue = line.split('=', 2)
-                            if (keyValue.size() == 2) {
-                                // Clean and trim key and value
-                                def key = keyValue[0].trim()
-                                def value = keyValue[1].trim()
-
-                                // Validate if the key and value are not empty
-                                if (key && value) {
+        stage('Load Environment Variables from .env') {
+            steps {
+                script {
+                    // Use the Config File Provider to load the .env file
+                    configFileProvider([configFile(fileId: 'IIS-Env-File_1', variable: 'ENV_FILE')]) {
+                        // Source the .env file and load environment variables
+                        def envContents = readFile("${ENV_FILE}")
+                        envContents.split('\n').each { line ->
+                            if (line.trim() && !line.trim().startsWith('#')) {
+                                def keyValue = line.split('=', 2)
+                                if (keyValue.size() == 2) {
+                                    def key = keyValue[0].trim()
+                                    def value = keyValue[1].trim()
                                     env."${key}" = value
                                     echo "Setting ${key} to ${value}"
                                 }
                             }
-                        }    
+                        }
                     }
                 }
             }
