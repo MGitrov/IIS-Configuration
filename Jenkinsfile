@@ -15,40 +15,15 @@ pipeline {
         stage('Load .env File') {
             steps {
                 script {
-                    // Read the .env file content using PowerShell and return the key-value pairs
-                    def envVars = powershell(returnStdout: true, script: '''
-                    $envFilePath = ".env"
-
-                    if (Test-Path $envFilePath) {
-                        Get-Content $envFilePath | ForEach-Object {
-                            $parts = $_ -split "="
-                            if ($parts.Count -eq 2) {
-                                $envName = $parts[0].Trim()
-                                $envValue = $parts[1].Trim()
-                                Write-Output "$envName=$envValue"
+                    // Use PowerShell to read .env file and set environment variables
+                    powershell '''
+                        Get-Content .env | ForEach-Object {
+                            $name, $value = $_.split('=')
+                            if ([string]::IsNullOrWhiteSpace($name) -eq $false) {
+                                Set-Item -Path env:$name -Value $value
                             }
                         }
-                    } else {
-                        Write-Host ".env file not found."
-                        return ""
-                    }
-                    ''').trim()
-
-                    // Prepare the environment variables for 'withEnv'
-                    def envList = []
-                    envVars.split('\n').each { line ->
-                        if (line) {
-                            envList.add(line.trim()) // Add the key=value pair to the environment list
-                        }
-                    }
-
-                    // Apply the environment variables using 'withEnv'
-                    withEnv(envList) {
-                        envList.each { envVar ->
-                            def (key, value) = envVar.split('=')
-                            env[key] = value // Make the environment variable globally available
-                        }
-                    }
+                    '''
                 }
             }
         }
