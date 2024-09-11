@@ -109,16 +109,22 @@ pipeline {
                         echo "Creating deployment package: ${env.PACKAGE_NAME}"
                         
                         powershell '''
-                        # Load the .NET ZipFile class
-                        # Add-Type -AssemblyName "System.IO.Compression.FileSystem"
-
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
                         Write-Host "Saving to: ${env:PACKAGE_NAME}"
-                        # $itemsToCompress = Get-ChildItem -Path ${env:WORKSPACE} -Recurse
-                        Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
+                        # Get-ChildItem -Path ./* -Recurse | ForEach-Object { Write-Host $_.FullName }
 
-                        # [System.IO.Compression.ZipFile]::CreateFromDirectory($env:WORKSPACE, $env:PACKAGE_NAME)
-                        Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        # Compress-Archive -Path $env:WORKSPACE -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+
+                        # Exclude the 'Configuration' directory and '.gitmodules' file during compression
+                        $itemsToCompress = Get-ChildItem -Path $env:WORKSPACE -Recurse | Where-Object {
+                        $_.FullName -notlike "*\\Configuration*" -and $_.FullName -notlike "*.gitmodules"
+                        }
+
+                        # List the files to be compressed
+                        $itemsToCompress | ForEach-Object { Write-Host "Including: $($_.FullName)" }
+
+                        # Compress the filtered files
+                        Compress-Archive -Path $itemsToCompress.FullName -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
