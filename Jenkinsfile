@@ -44,8 +44,10 @@ pipeline {
 
                     // Apply the environment variables using 'withEnv'
                     withEnv(envList) {
-                        echo "Loaded environment variables: ${env.REPOSITORY_URL}, ${env.MAIN_BRANCH}"
-                    }
+                        envList.each { envVar ->
+                            def (key, value) = envVar.split('=')
+                            env[key] = value // Make the environment variable globally available
+                        }
                 }
             }
         }
