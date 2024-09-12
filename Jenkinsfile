@@ -85,29 +85,6 @@ pipeline {
             }
         }
 
-        /*stage("Fetch 'newpage' file from 'new-page' Branch") {
-            when {
-                expression {
-                    // "env.GIT_BRANCH" is an environment variable that Jenkins sets to indicate the name of the branch being built.
-                    return env.GIT_BRANCH == "${params.SECONDARY_BRANCH}"
-                }
-            }
-            
-            steps {
-                script {
-                    echo "Fetching files from ${params.SECONDARY_BRANCH} branch..." /* BRANCH_NAME is a Jenkins environment variable that
-                    is used to identify the branch that triggered the build. */
-
-                    /* "2> $null" means that any non-fatal errors from the "git fetch" command will be ignored. */
-                    #powershell '''
-                    #git fetch origin ${env:SECONDARY_BRANCH} 2> $null
-                    #git checkout origin/${env:SECONDARY_BRANCH} -- newpage.html
-                    #ls
-                    #'''
-                //}
-            //}
-        }*/
-
         stage("Deployment package creation") { /* This stage packages the application files into a ".zip" file that will later be deployed 
         to the IIS web server. */
             steps {
