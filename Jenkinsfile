@@ -5,7 +5,6 @@ pipeline {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
-        
     }
 
     stages {
