@@ -24,27 +24,6 @@ pipeline {
                             def value = keyValue[1].trim()
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
-
-                            // Sets the default pipeline parameters as the loaded ".env" values.
-                            if (key == REPOSITORY_URL) {
-                                params.REPOSITORY_URL = value
-                            }
-                            
-                            if (key == MAIN_BRANCH) {
-                                params.MAIN_BRANCH = value
-                            }
-
-                            if (key == PACKAGE_NAME) {
-                                params.PACKAGE_NAME = value
-                            }
-
-                            if (key == DEPLOY_PATH) {
-                                params.DEPLOY_PATH = value
-                            }
-
-                            if (key == WEB_APP_POOL) {
-                                params.WEB_APP_POOL = value
-                            }
                         }
                     }
                 }
