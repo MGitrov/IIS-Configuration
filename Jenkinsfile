@@ -86,12 +86,12 @@ pipeline {
         }
 
         stage("Fetch 'newpage' file from 'new-page' Branch") {
-            when {
+            /*when {
                 expression {
                     // "env.GIT_BRANCH" is an environment variable that Jenkins sets to indicate the name of the branch being built.
                     return env.GIT_BRANCH == "${params.SECONDARY_BRANCH}"
                 }
-            }
+            }*/
             
             steps {
                 script {
