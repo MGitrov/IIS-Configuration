@@ -1,6 +1,10 @@
 pipeline {
     agent {label "Local-Agent"}
 
+    parameters {
+        string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch to checkout from")
+    }
+
     stages {
         stage("Load environmet variables") {
             steps {
@@ -16,6 +20,11 @@ pipeline {
                             def value = keyValue[1].trim()
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
+                        
+                            if (key == "MAIN_BRANCH") {
+                                currentBuild.description = "Setting MAIN_BRANCH from .env file: ${value}"
+                                params.MAIN_BRANCH = value
+                            }
                         }
                     }
                 }
