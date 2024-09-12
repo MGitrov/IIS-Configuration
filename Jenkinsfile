@@ -169,7 +169,7 @@ pipeline {
                 echo "Recycling ${params.WEB_APP_POOL} web app pool..."
                 script {
                     powershell '''
-                    Restart-WebAppPool -Name $env:WEB_APP_POOL
+                    Restart-WebAppPool -Name "$env:WEB_APP_POOL"
                     '''
                 }
             }
