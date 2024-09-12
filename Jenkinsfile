@@ -4,7 +4,6 @@ pipeline {
     parameters {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
-        //string(name: "SECONDARY_BRANCH", defaultValue: "new-page", description: "Secondary branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
         string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
         string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
@@ -35,10 +34,6 @@ pipeline {
                                 params.MAIN_BRANCH = value
                             }
 
-                            /*if (key == SECONDARY_BRANCH) {
-                                params.SECONDARY_BRANCH = value
-                            }*/
-
                             if (key == PACKAGE_NAME) {
                                 params.PACKAGE_NAME = value
                             }
@@ -63,7 +58,6 @@ pipeline {
                     powershell '''
                     Write-Host "Repository URL: ${env:REPOSITORY_URL}"
                     Write-Host "Main Branch: ${env:MAIN_BRANCH}"
-                    Write-Host "Secondary Branch: ${env:SECONDARY_BRANCH}"
                     Write-Host "Package Name: ${env:PACKAGE_NAME}"
                     Write-Host "Deploy Path: ${env:DEPLOY_PATH}"
                     Write-Host "Web App Pool: ${env:WEB_APP_POOL}"
