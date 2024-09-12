@@ -40,6 +40,10 @@ pipeline {
                             if (key == DEPLOY_PATH) {
                                 params.DEPLOY_PATH = value
                             }
+
+                            if (key == WEB_APP_POOL) {
+                                params.WEB_APP_POOL = value
+                            }
                         }
                     }
                 }
