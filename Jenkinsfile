@@ -4,6 +4,7 @@ pipeline {
     parameters {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
+        string(name: "SECONDARY_BRANCH", defaultValue: "new-page", description: "Secondary branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
         string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
         string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
@@ -24,13 +25,18 @@ pipeline {
                             def value = keyValue[1].trim()
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
-                        
+
+                            // Sets the default pipeline parameters as the loaded ".env" values.
                             if (key == REPOSITORY_URL) {
                                 params.REPOSITORY_URL = value
                             }
                             
                             if (key == MAIN_BRANCH) {
                                 params.MAIN_BRANCH = value
+                            }
+
+                            if (key == SECONDARY_BRANCH) {
+                                params.SECONDARY_BRANCH = value
                             }
 
                             if (key == PACKAGE_NAME) {
@@ -81,18 +87,18 @@ pipeline {
 
         stage("Fetch 'newpage' file from 'new-page' Branch") {
             when {
-                branch "new-page"
+                branch "${params.SECONDARY_BRANCH}"
             }
             
             steps {
                 script {
-                    echo "Fetching files from ${env.BRANCH_NAME} branch..." /* BRANCH_NAME is a Jenkins environment variable that
+                    echo "Fetching files from ${params.SECONDARY_BRANCH} branch..." /* BRANCH_NAME is a Jenkins environment variable that
                     is used to identify the branch that triggered the build. */
 
                     /* "2> $null" means that any non-fatal errors from the "git fetch" command will be ignored. */
                     powershell '''
-                    git fetch origin ${env:BRANCH_NAME} 2> $null
-                    git checkout origin/${env:BRANCH_NAME} -- newpage.html
+                    git fetch origin ${env:SECONDARY_BRANCH} 2> $null
+                    git checkout origin/${env:SECONDARY_BRANCH} -- newpage.html
                     ls
                     '''
                 }
