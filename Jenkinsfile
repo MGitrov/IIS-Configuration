@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
-        string(name: "SECONDARY_BRANCH", defaultValue: "new-page", description: "Secondary branch")
+        //string(name: "SECONDARY_BRANCH", defaultValue: "new-page", description: "Secondary branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
         string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
         string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
@@ -35,9 +35,9 @@ pipeline {
                                 params.MAIN_BRANCH = value
                             }
 
-                            if (key == SECONDARY_BRANCH) {
+                            /*if (key == SECONDARY_BRANCH) {
                                 params.SECONDARY_BRANCH = value
-                            }
+                            }*/
 
                             if (key == PACKAGE_NAME) {
                                 params.PACKAGE_NAME = value
@@ -85,7 +85,7 @@ pipeline {
             }
         }
 
-        stage("Fetch 'newpage' file from 'new-page' Branch") {
+        /*stage("Fetch 'newpage' file from 'new-page' Branch") {
             when {
                 expression {
                     // "env.GIT_BRANCH" is an environment variable that Jenkins sets to indicate the name of the branch being built.
@@ -99,14 +99,14 @@ pipeline {
                     is used to identify the branch that triggered the build. */
 
                     /* "2> $null" means that any non-fatal errors from the "git fetch" command will be ignored. */
-                    powershell '''
-                    git fetch origin ${env:SECONDARY_BRANCH} 2> $null
-                    git checkout origin/${env:SECONDARY_BRANCH} -- newpage.html
-                    ls
-                    '''
-                }
-            }
-        }
+                    #powershell '''
+                    #git fetch origin ${env:SECONDARY_BRANCH} 2> $null
+                    #git checkout origin/${env:SECONDARY_BRANCH} -- newpage.html
+                    #ls
+                    #'''
+                //}
+            //}
+        }*/
 
         stage("Deployment package creation") { /* This stage packages the application files into a ".zip" file that will later be deployed 
         to the IIS web server. */
