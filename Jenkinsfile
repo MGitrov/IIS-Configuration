@@ -1,22 +1,48 @@
 pipeline {
     agent {label "Local-Agent"}
-
-    environment {
-        REPOSITORY_URL = "https://github.com/MGitrov/IIS-Jenkins-Pipeline"
-        MAIN_BRANCH = "main"
-        SECONDARY_BRANCH = "new-page"
-        PACKAGE_NAME = "WebApp.zip"
-        DEPLOY_PATH = "C:\\inetpub\\wwwroot\\"
-        WEB_APP_POOL = "DefaultAppPool"
-    }
-
+    
     stages {
+        stage("Load environmet variables") {
+            steps {
+                script {
+                    // Reads the ".env" file.
+                    def envVariables = powershell(returnStdout: true, script: "Get-Content .env -Raw")
+                    
+                    // Parses the contents of the ".env" file, and sets the environment variables in the pipeline.
+                    envVariables.split("\r?\n").each { line ->
+                        def keyValue = line.split("=", 2)
+                        if (keyValue.size() == 2) {
+                            def key = keyValue[0].trim()
+                            def value = keyValue[1].trim()
+                            env."${key}" = value
+                            echo "Setting ${key} to ${value}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage("Verify environment variables") {
+            steps {
+                script {
+                    powershell '''
+                    Write-Host "Repository URL: ${env:REPOSITORY_URL}"
+                    Write-Host "Main Branch: ${env:MAIN_BRANCH}"
+                    Write-Host "Secondary Branch: ${env:SECONDARY_BRANCH}"
+                    Write-Host "Package Name: ${env:PACKAGE_NAME}"
+                    Write-Host "Deploy Path: ${env:DEPLOY_PATH}"
+                    Write-Host "Web App Pool: ${env:WEB_APP_POOL}"
+                    '''
+                }
+            }
+        }
+
         stage("Checkout 'main' branch") {
             steps {
                 script {
                     echo "Building main branch..."
-                    checkout([$class: "GitSCM", branches: [[name: "*/${MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${REPOSITORY_URL}"]]
+                    checkout([$class: "GitSCM", branches: [[name: "*/${env.MAIN_BRANCH}"]],
+                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
                     ])
                 }
 
@@ -48,8 +74,21 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
+                        echo "Creating deployment package: ${env.PACKAGE_NAME}"
+                        
                         powershell '''
-                        Compress-Archive -Path ./* -DestinationPath $env:PACKAGE_NAME -Force -Verbose
+                        Write-Host "Compressing files from: ${env:WORKSPACE}"
+                        Write-Host "Saving to: ${env:PACKAGE_NAME}"
+
+                        # Excludes the "Configuration" directory and ".gitmodules" file during compression.
+                        $itemsToCompress = Get-ChildItem -Path $env:WORKSPACE -Recurse | Where-Object {
+                        $_.FullName -notlike "*\\Configuration*" -and $_.FullName -notlike "*.gitmodules"
+                        }
+
+                        # Lists the files to be compressed.
+                        $itemsToCompress | ForEach-Object { Write-Host "Including: $($_.FullName)" }
+
+                        Compress-Archive -Path $itemsToCompress.FullName -DestinationPath $env:PACKAGE_NAME -Force -Verbose
                         '''
                     }
             }
