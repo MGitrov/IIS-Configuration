@@ -36,7 +36,7 @@ pipeline {
                 script {
                     powershell '''
                     Write-Host "Repository URL: ${env:REPOSITORY_URL}"
-                    Write-Host "Main Branch: ${env:MAIN_BRANCH}"
+                    Write-Host "Main Branch: ${params.MAIN_BRANCH}"
                     Write-Host "Secondary Branch: ${env:SECONDARY_BRANCH}"
                     Write-Host "Package Name: ${env:PACKAGE_NAME}"
                     Write-Host "Deploy Path: ${env:DEPLOY_PATH}"
