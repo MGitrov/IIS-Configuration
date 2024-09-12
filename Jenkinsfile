@@ -1,6 +1,15 @@
 pipeline {
     agent {label "Local-Agent"}
-    
+
+    parameters {
+        string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
+        string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
+        string(name: "SECONDARY_BRANCH", defaultValue: "new-page", description: "Secondary branch")
+        string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
+        string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
+        string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
+    }
+
     stages {
         stage("Load environmet variables") {
             steps {
@@ -16,6 +25,31 @@ pipeline {
                             def value = keyValue[1].trim()
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
+
+                            // Sets the default pipeline parameters as the loaded ".env" values.
+                            if (key == REPOSITORY_URL) {
+                                params.REPOSITORY_URL = value
+                            }
+                            
+                            if (key == MAIN_BRANCH) {
+                                params.MAIN_BRANCH = value
+                            }
+
+                            if (key == SECONDARY_BRANCH) {
+                                params.SECONDARY_BRANCH = value
+                            }
+
+                            if (key == PACKAGE_NAME) {
+                                params.PACKAGE_NAME = value
+                            }
+
+                            if (key == DEPLOY_PATH) {
+                                params.DEPLOY_PATH = value
+                            }
+
+                            if (key == WEB_APP_POOL) {
+                                params.WEB_APP_POOL = value
+                            }
                         }
                     }
                 }
@@ -25,6 +59,7 @@ pipeline {
         stage("Verify environment variables") {
             steps {
                 script {
+                    // Jenkins parameters are available to PowerShell as an environment variable.
                     powershell '''
                     Write-Host "Repository URL: ${env:REPOSITORY_URL}"
                     Write-Host "Main Branch: ${env:MAIN_BRANCH}"
@@ -37,12 +72,12 @@ pipeline {
             }
         }
 
-        stage("Checkout 'main' branch") {
+        stage("Checkout the main branch") {
             steps {
                 script {
-                    echo "Building main branch..."
-                    checkout([$class: "GitSCM", branches: [[name: "*/${env.MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
+                    echo "Building ${params.MAIN_BRANCH} branch..."
+                    checkout([$class: "GitSCM", branches: [[name: "*/${params.MAIN_BRANCH}"]],
+                              userRemoteConfigs: [[url: "${params.REPOSITORY_URL}"]]
                     ])
                 }
 
@@ -52,18 +87,18 @@ pipeline {
 
         stage("Fetch 'newpage' file from 'new-page' Branch") {
             when {
-                branch "new-page"
+                branch "${params.SECONDARY_BRANCH}"
             }
             
             steps {
                 script {
-                    echo "Fetching files from ${env.BRANCH_NAME} branch..." /* BRANCH_NAME is a Jenkins environment variable that
+                    echo "Fetching files from ${params.SECONDARY_BRANCH} branch..." /* BRANCH_NAME is a Jenkins environment variable that
                     is used to identify the branch that triggered the build. */
 
                     /* "2> $null" means that any non-fatal errors from the "git fetch" command will be ignored. */
                     powershell '''
-                    git fetch origin ${env:BRANCH_NAME} 2> $null
-                    git checkout origin/${env:BRANCH_NAME} -- newpage.html
+                    git fetch origin ${env:SECONDARY_BRANCH} 2> $null
+                    git checkout origin/${env:SECONDARY_BRANCH} -- newpage.html
                     ls
                     '''
                 }
@@ -74,7 +109,7 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
-                        echo "Creating deployment package: ${env.PACKAGE_NAME}"
+                        echo "Creating deployment package: ${params.PACKAGE_NAME}"
                         
                         powershell '''
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
@@ -137,10 +172,10 @@ pipeline {
 
         stage("Recycling web app pool") {
             steps {
-                echo "Recycling ${WEB_APP_POOL} web app pool..."
+                echo "Recycling ${params.WEB_APP_POOL} web app pool..."
                 script {
                     powershell '''
-                    Restart-WebAppPool -Name $env:WEB_APP_POOL
+                    Restart-WebAppPool -Name "$env:WEB_APP_POOL"
                     '''
                 }
             }
