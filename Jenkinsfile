@@ -2,7 +2,9 @@ pipeline {
     agent {label "Local-Agent"}
 
     parameters {
-        string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch to checkout from")
+        string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
+        string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
+        
     }
 
     stages {
@@ -21,8 +23,11 @@ pipeline {
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
                         
+                            if (key == REPOSITORY_URL) {
+                                params.REPOSITORY_URL = value
+                            }
+                            
                             if (key == MAIN_BRANCH) {
-                                currentBuild.description = "Setting MAIN_BRANCH from .env file: ${value}"
                                 params.MAIN_BRANCH = value
                             }
                         }
@@ -46,12 +51,12 @@ pipeline {
             }
         }
 
-        stage("Checkout 'main' branch") {
+        stage("Checkout the main branch") {
             steps {
                 script {
                     echo "Building ${params.MAIN_BRANCH} branch..."
                     checkout([$class: "GitSCM", branches: [[name: "*/${params.MAIN_BRANCH}"]],
-                              userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
+                              userRemoteConfigs: [[url: "${params.REPOSITORY_URL}"]]
                     ])
                 }
 
