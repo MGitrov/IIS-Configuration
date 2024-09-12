@@ -5,6 +5,8 @@ pipeline {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
+        string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
+        string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
     }
 
     stages {
@@ -33,6 +35,10 @@ pipeline {
 
                             if (key == PACKAGE_NAME) {
                                 params.PACKAGE_NAME = value
+                            }
+
+                            if (key == DEPLOY_PATH) {
+                                params.DEPLOY_PATH = value
                             }
                         }
                     }
@@ -156,7 +162,7 @@ pipeline {
 
         stage("Recycling web app pool") {
             steps {
-                echo "Recycling ${WEB_APP_POOL} web app pool..."
+                echo "Recycling ${params.WEB_APP_POOL} web app pool..."
                 script {
                     powershell '''
                     Restart-WebAppPool -Name $env:WEB_APP_POOL
