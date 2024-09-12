@@ -4,6 +4,7 @@ pipeline {
     parameters {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
+        string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
         
     }
 
@@ -30,6 +31,10 @@ pipeline {
                             if (key == MAIN_BRANCH) {
                                 params.MAIN_BRANCH = value
                             }
+
+                            if (key == PACKAGE_NAME) {
+                                params.PACKAGE_NAME = value
+                            }
                         }
                     }
                 }
@@ -39,6 +44,7 @@ pipeline {
         stage("Verify environment variables") {
             steps {
                 script {
+                    // Jenkins parameters are available to PowerShell as an environment variable.
                     powershell '''
                     Write-Host "Repository URL: ${env:REPOSITORY_URL}"
                     Write-Host "Main Branch: ${env:MAIN_BRANCH}"
@@ -88,7 +94,7 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
-                        echo "Creating deployment package: ${env.PACKAGE_NAME}"
+                        echo "Creating deployment package: ${params.PACKAGE_NAME}"
                         
                         powershell '''
                         Write-Host "Compressing files from: ${env:WORKSPACE}"
