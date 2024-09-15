@@ -12,13 +12,13 @@ pipeline {
     }
 
     stages {
-        stage("Load environmet variables") {
+        /*stage("Load environmet variables") {
             steps {
                 script {
                     loadEnvironmentVariables()
                 }
             }
-        }
+        }*/
 
         stage("Verify environment variables") {
             steps {
