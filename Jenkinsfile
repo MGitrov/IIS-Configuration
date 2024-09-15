@@ -20,7 +20,7 @@ pipeline {
             }
         }*/
 
-        stage("Verify environment variables") {
+        /*stage("Verify environment variables") {
             steps {
                 script {
                     // Jenkins parameters are available to PowerShell as an environment variable.
@@ -33,7 +33,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        }*/
 
         stage("Checkout the main branch") {
             steps {
@@ -85,18 +85,6 @@ pipeline {
         stage("Deployment to IIS web server") {
             steps {
                 script {
-                    /*echo "Deploying to IIS web server..."
-
-                    powershell '''
-                    Start-Process "C:\\Program Files\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe" -ArgumentList @(
-                        "-verb:sync",
-                        "-source:package='$env:WORKSPACE\\$env:PACKAGE_NAME'",
-                        "-dest:contentPath='$env:DEPLOY_PATH',computerName='localhost'",
-                        "-enableRule:DoNotDeleteRule"
-                    ) -Wait -NoNewWindow
-                    '''
-                    */
-
                     deploymentToIIS(params.PACKAGE_NAME, params.DEPLOY_PATH)
                 }
             }
@@ -104,11 +92,13 @@ pipeline {
 
         stage("Recycling web app pool") {
             steps {
-                echo "Recycling ${params.WEB_APP_POOL} web app pool..."
                 script {
+                    /*
                     powershell '''
                     Restart-WebAppPool -Name "$env:WEB_APP_POOL"
                     '''
+                    */
+                    recycleWebAppPool(params.WEB_APP_POOL)
                 }
             }
         }
