@@ -84,8 +84,9 @@ pipeline {
 
         stage("Deployment to IIS web server") {
             steps {
-                echo "Deploying to IIS web server..."
                 script {
+                    /*echo "Deploying to IIS web server..."
+
                     powershell '''
                     Start-Process "C:\\Program Files\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe" -ArgumentList @(
                         "-verb:sync",
@@ -94,6 +95,9 @@ pipeline {
                         "-enableRule:DoNotDeleteRule"
                     ) -Wait -NoNewWindow
                     '''
+                    */
+
+                    deploymentToIIS(params.PACKAGE_NAME, params.DEPLOY_PATH)
                 }
             }
         }
