@@ -1,4 +1,4 @@
-@Library("iis-pipeline-shared-library") _
+@Library("iis-pipeline-shared-library@main") _
 
 pipeline {
     agent {label "Local-Agent"}
