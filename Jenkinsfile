@@ -1,20 +1,22 @@
+@Library("iis-pipeline-shared-library") _
+
 pipeline {
     agent {label "Local-Agent"}
 
-    parameters {
+    /*parameters {
         string(name: "REPOSITORY_URL", defaultValue: "https://github.com/MGitrov/IIS-Jenkins-Pipeline.git", description: "GitHub repository to checkout from")
         string(name: "MAIN_BRANCH", defaultValue: "main", description: "Main branch")
         string(name: "PACKAGE_NAME", defaultValue: "WebApp.zip", description: "The name of the created deployment package; format: 'your_name.zip'")
         string(name: "DEPLOY_PATH", defaultValue: "C:\\inetpub\\wwwroot\\", description: "Deployment folder for the new files")
         string(name: "WEB_APP_POOL", defaultValue: "DefaultAppPool", description: "The name of the application pool to recycle")
-    }
+    }*/
 
     stages {
         stage("Load environmet variables") {
             steps {
                 script {
                     // Reads the ".env" file.
-                    def envVariables = powershell(returnStdout: true, script: "Get-Content .env -Raw")
+                    /*def envVariables = powershell(returnStdout: true, script: "Get-Content .env -Raw")
                     
                     // Parses the contents of the ".env" file, and sets the environment variables in the pipeline.
                     envVariables.split("\r?\n").each { line ->
@@ -25,7 +27,9 @@ pipeline {
                             env."${key}" = value
                             echo "Setting ${key} to ${value}"
                         }
-                    }
+                    }*/
+
+                    loadEnvironmentVariables()
                 }
             }
         }
