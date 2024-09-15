@@ -53,7 +53,7 @@ pipeline {
         to the IIS web server. */
             steps {
                     script {
-                        deploymentPackageCreation(params.PACKAGE_NAME)
+                        deploymentPackageCreation()
                     }
             }
         }
@@ -86,7 +86,7 @@ pipeline {
         stage("Deployment to IIS web server") {
             steps {
                 script {
-                    deploymentToIIS(params.PACKAGE_NAME, params.DEPLOY_PATH)
+                    deploymentToIIS()
                 }
             }
         }
@@ -94,7 +94,7 @@ pipeline {
         stage("Recycling web app pool") {
             steps {
                 script {
-                    recycleWebAppPool(params.WEB_APP_POOL)
+                    recycleWebAppPool()
                 }
             }
         }
